@@ -6,7 +6,9 @@ O programa consiste de dois arquivos python: [consultas.py](consultas.py) e [con
 
 ### config.py
 
-Este é o arquivo de configuração do script. Nele são declaradas as variáveis de ambiente principais, relacionadas aos bancos de dados, tornando-as disponíveis na variável 'config'. O código define um json que contém, para cada banco de dados, a url de conexão e as consultas correspondentes. Os bancos de dados declarados são o postgres, mysql e sqlserver (mssql). É possível replicar os objetos declarados no json para incluir instancias de bancos de dados diferentes declarando novas variáveis e modificando a url de conexão (database_url). As consultas devem estar presentes no mesmo diretório do arquivo de configuração.
+Este é o arquivo de configuração do script. Nele são declaradas as variáveis de ambiente principais, relacionadas aos bancos de dados, tornando-as disponíveis na variável 'config'. O código define um json que contém, para cada banco de dados, a url de conexão e as consultas correspondentes. Os bancos de dados declarados são o postgres, mysql e sqlserver (mssql). É possível replicar os objetos declarados no json para incluir instancias de bancos de dados diferentes declarando novas variáveis e modificando a url de conexão (database_url). As consultas devem estar presentes no mesmo diretório do arquivo de configuração e são declaradas na lista `consultas` dentro do objeto correspondente de cada banco. 
+
+Para futura expansão das consultas basta incluir o arquivo sql no mesmo diretório e referenciá-lo na lista de consultas do banco correspondente.
 
 Para que o arquivo funcione corretamente é necessário que as variáveis de ambiente sejam declaradas no .env de acordo com .env.example. 
 
