@@ -1,0 +1,11 @@
+{
+    "postgres":{
+    
+    },
+    "mysql": {
+
+    },
+    "mssql": {
+        "conection_url": ""
+    }
+}
