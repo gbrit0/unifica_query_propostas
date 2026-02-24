@@ -1,46 +1,65 @@
-# Unificação das query
+# Unificação de consultas SQL
 
-Conforme solicitado no projeto 'Sistema de Proposta BRG para o comercial' foi desenvolvido script que é capaz de unificar querys para execução.
+Este repositório contém um script para unificar e executar consultas SQL em múltiplos bancos (Postgres, MySQL, SQL Server). Ele foi desenvolvido como parte do projeto "Sistema de Proposta BRG" para facilitar a execução centralizada de consultas distribuídas por diferentes bancos.
 
-O programa consiste de dois arquivos python: [consultas.py](consultas.py) e [config.py](config.py).
+Arquivos principais
+- `consultas.py`: executa as consultas declaradas no arquivo de configuração e entrega os resultados para posterior processamento.
+- `config.py`: contém a configuração (variáveis e lista de consultas) utilizada por `consultas.py`.
 
-### config.py
+Visão geral
+O `config.py` expõe uma estrutura (JSON/Python) chamada `config` com as entradas para cada banco suportado. Cada entrada contém a `database_url` (usada pelo SQLAlchemy) e uma lista `consultas` com caminhos relativos para arquivos `.sql` que serão executados.
 
-Este é o arquivo de configuração do script. Nele são declaradas as variáveis de ambiente principais, relacionadas aos bancos de dados, tornando-as disponíveis na variável 'config'. O código define um json que contém, para cada banco de dados, a url de conexão e as consultas correspondentes. Os bancos de dados declarados são o postgres, mysql e sqlserver (mssql). É possível replicar os objetos declarados no json para incluir instancias de bancos de dados diferentes declarando novas variáveis e modificando a url de conexão (database_url). As consultas devem estar presentes no mesmo diretório do arquivo de configuração e são declaradas na lista `consultas` dentro do objeto correspondente de cada banco. 
+Principais pontos:
+- Os arquivos `.sql` devem ficar no mesmo diretório referenciado em `config.py` (ou usar caminhos relativos corretos).
+- Para cada banco listado no `config` o `consultas.py` cria uma conexão via SQLAlchemy e executa as consultas da lista.
+- O processamento dos resultados (agregação, escrita em arquivo, etc.) deve ser implementado onde indicado em `consultas.py`.
 
-Para futura expansão das consultas basta incluir o arquivo sql no mesmo diretório e referenciá-lo na lista de consultas do banco correspondente.
+Requisitos
+- Python (recomenda-se 3.8+)
+- Dependências estão listadas em `requirements.txt` (ex.: SQLAlchemy, python-dotenv, drivers de BD).
 
-Para que o arquivo funcione corretamente é necessário que as variáveis de ambiente sejam declaradas no .env de acordo com .env.example. 
-
-### consultas.py
-
-Esse arquivo é quem realiza as consultas importando a variável 'config' do arquivo [config.py](config.py) e percorrendo o json em busca dos bancos de dados registrados e suas respectivas urls de conexão e consultas. Se conecta a cada banco por meio da biblioteca sqlalchemy e busca o resultado de cada consulta. A partir deste ponto deve-se incluir a lógica de processamento dos dados conforme necessário.
-
-## Instalação
-
-1. Criar um ambiente virtual e ativá-lo:
+Instalação
+1. Crie e ative um ambiente virtual:
 
 ```bash
 python -m venv .venv
 source .venv/bin/activate
 ```
 
-2. Instalar dependências:
+2. Instale as dependências:
 
 ```bash
 pip install -r requirements.txt
 ```
 
-3. Fornecer variáveis de ambiente:
-
-O script usa `python-dotenv` para carregar as variáveis do arquivo `.env`. O arquivo deve replicar `.env.example`
+Configuração de variáveis de ambiente
+O projeto usa `python-dotenv` para carregar variáveis do arquivo `.env`. Copie o exemplo e ajuste as credenciais/URLs:
 
 ```bash
 cp .env.example .env
+# edite .env com host, porta, usuário, senha e database_url adequados
 ```
 
-Modifique os valores para credenciais reais de acesso bem como host, porta e nome do banco de dados.
+Uso
+Execute o script `consultas.py` como ponto de entrada. Por exemplo:
 
-## Uso
+```bash
+python consultas.py
+```
 
-O ponto de entrada é o arquivo `consultas.py`. Por padrão a função `main()` lê o json de configuração criado em `config.py` e itera sobre os valores declarados. Para cada banco realiza a conexão via `sqlalchemy` usando `database_url` e executa cada consulta disponível na lista `consultas` disponibilizando o resultado na variável `resultado`. O processamento do resultado deve ser incluído dentro do loop após retorno do resultado.
+Comportamento padrão:
+- O `main()` em `consultas.py` lê a variável `config` de `config.py`.
+- Para cada instância declarada em `config` o script cria uma conexão usando `database_url` e executa cada arquivo de consulta listado em `consultas`.
+- O resultado de cada consulta fica disponível na variável `resultado` dentro do loop — é aí que você deve adicionar a lógica de processamento (salvar em arquivo, consolidar, etc.).
+
+Como estender
+- Para adicionar novas consultas: coloque o arquivo `.sql` no diretório apropriado e adicione seu caminho à lista `consultas` dentro do objeto correspondente no `config`.
+- Para adicionar um novo banco: duplique a estrutura do objeto do banco no `config` e aponte uma nova `database_url`.
+
+Dependências de drivers
+- Para Postgres: `psycopg2-binary`
+- Para MySQL: `PyMySQL`
+- Para SQL Server: `pyodbc` (verifique o driver ODBC do SO)
+
+Notas finais
+- Este repositório oferece a execução e unificação das consultas; a lógica de transformação/armazenamento dos resultados fica a cargo do integrador.
